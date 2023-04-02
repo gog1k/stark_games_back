@@ -13,22 +13,32 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-//Route::middleware(['auth:api', 'scopes:admin'])->group(function () {
+Route::middleware(['auth:api', 'scope:superuser'])->group(function () {
+
+    Route::group(['prefix' => 'admin'], function () {
+        Route::group(['prefix' => 'user'], function () {
+            Route::get('/', [\App\Http\Controllers\Admin\UserController::class, 'getListAction']);
+        });
+    });
+});
+
+Route::middleware(['auth:api', 'scope:superuser,project_admin,project_manager'])->group(function () {
     Route::get('/all', [\App\Http\Controllers\Controller::class, 'helloAction']);
 
+    Route::group(['prefix' => 'admin'], function () {
+        Route::group(['prefix' => 'room-items'], function () {
+            Route::get('/', [\App\Http\Controllers\Admin\RoomItemController::class, 'indexAction']);
+            Route::post('/create', [\App\Http\Controllers\Admin\RoomItemController::class, 'createAction']);
+            Route::post('/update', [\App\Http\Controllers\Admin\RoomItemController::class, 'updateAction']);
+        });
 
-    Route::group(['prefix' => 'room-items'], function () {
-        Route::get('/', [\App\Http\Controllers\Admin\RoomItemController::class, 'indexAction']);
-        Route::post('/create', [\App\Http\Controllers\Admin\RoomItemController::class, 'createAction']);
-        Route::post('/update', [\App\Http\Controllers\Admin\RoomItemController::class, 'updateAction']);
+        Route::group(['prefix' => 'room-item-template'], function () {
+            Route::get('/', [\App\Http\Controllers\Admin\ItemTemplateController::class, 'indexAction']);
+            Route::get('{id}', [\App\Http\Controllers\Admin\ItemTemplateController::class, 'getAction']);
+            Route::get('/template/{templateId}', [\App\Http\Controllers\Admin\ItemTemplateController::class, 'listForTemplateAction']);
+            Route::get('/item/{itemId}', [\App\Http\Controllers\Admin\ItemTemplateController::class, 'listForItemAction']);
+            Route::post('/create', [\App\Http\Controllers\Admin\ItemTemplateController::class, 'createAction']);
+            Route::post('/update', [\App\Http\Controllers\Admin\ItemTemplateController::class, 'updateAction']);
+        });
     });
-
-    Route::group(['prefix' => 'room-item-template'], function () {
-        Route::get('/', [\App\Http\Controllers\Admin\ItemTemplateController::class, 'indexAction']);
-        Route::get('{id}', [\App\Http\Controllers\Admin\ItemTemplateController::class, 'getAction']);
-        Route::get('/template/{templateId}', [\App\Http\Controllers\Admin\ItemTemplateController::class, 'listForTemplateAction']);
-        Route::get('/item/{itemId}', [\App\Http\Controllers\Admin\ItemTemplateController::class, 'listForItemAction']);
-        Route::post('/create', [\App\Http\Controllers\Admin\ItemTemplateController::class, 'createAction']);
-        Route::post('/update', [\App\Http\Controllers\Admin\ItemTemplateController::class, 'updateAction']);
-    });
-//});
+});

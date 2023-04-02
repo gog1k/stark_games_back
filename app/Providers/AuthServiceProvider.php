@@ -24,7 +24,9 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         Passport::tokensCan([
-            'admin' => 'Can all actions',
+            'superuser' => 'Can all actions',
+            'project_admin' => 'Can do all actions for project',
+            'project_manager' => 'Can do same actions for project',
         ]);
     }
 }

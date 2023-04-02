@@ -12,7 +12,9 @@ class CreateGroupsSeeder extends Seeder
     const GROUPS = [
         'Guest',
         'Register',
-        'Admin',
+        'SuperUser',
+        'ProjectAdmin',
+        'ProjectManager',
     ];
 
     /**

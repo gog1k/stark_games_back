@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class UserGroup extends BaseModel
+class GroupUser extends BaseModel
 {
     use HasFactory;
 
-    protected $table = 'user_group';
+    protected $table = 'group_user';
 }

@@ -13,7 +13,8 @@ return new class extends Migration {
         Schema::create('item_templates', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->integer('active');
+            $table->integer('active')->index();
+            $table->integer('project_id')->index();
             $table->string('name');
             $table->string('template');
         });

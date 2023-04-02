@@ -11,7 +11,15 @@ class RoomItemController extends Controller
 {
     public function indexAction(): Response
     {
-        return response(RoomItem::get());
+        if (auth()->user()->isSuperUser()) {
+            $items = RoomItem::get();
+        } else {
+            $items = RoomItem
+                ::whereIn('project_id', auth()->user()->projectsAllowedForAdministrationIds())
+                ->get();
+        }
+
+        return response($items);
     }
 
     public function createAction(Request $request): Response

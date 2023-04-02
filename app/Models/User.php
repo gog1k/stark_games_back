@@ -3,14 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 
 /**
- * @property-read HasManyThrough groups
+ * @property-read BelongsToMany groups
+ * @property-read HasMany projectsUser
  */
 class User extends Authenticatable
 {
@@ -33,6 +34,8 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
+        'created_at',
+        'updated_at',
         'password',
         'remember_token',
     ];
@@ -46,18 +49,73 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    /**
-     * @return hasManyThrough
-     */
-    public function groups(): hasManyThrough
+    public function projectsAllowedForAdministrationIds(): array
     {
-        return $this->hasManyThrough(
+        $ids = [];
+        foreach ($this->projectsUser as $projectUser) {
+            if (array_filter($projectUser->groups->toArray(), fn($group) => in_array($group['name'], [
+                'ProjectAdmin',
+                'ProjectManager',
+            ]))) {
+                $ids[] = $projectUser->project_id;
+            }
+        }
+
+        return $ids;
+    }
+
+    public function isSuperUser(): bool
+    {
+        return !!array_filter($this->groups->toArray(), fn($group) => $group['name'] === 'SuperUser');
+    }
+
+    public function isProjectAdmin(): bool
+    {
+        foreach ($this->projectsUser as $projectUser) {
+            if (array_filter($projectUser->groups->toArray(), fn($group) => $group['name'] == 'ProjectAdmin')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isProjectManager(): bool
+    {
+        foreach ($this->projectsUser as $projectUser) {
+            if (array_filter($projectUser->groups->toArray(), fn($group) => $group['name'] == 'ProjectManager')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function groups(): BelongsToMany
+    {
+        return $this->belongsToMany(
             Group::class,
-            UserGroup::class,
-            'user_id',
-            'id',
-            'id',
-            'group_id'
         );
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function projectsUser(): HasMany
+    {
+        return $this->hasMany(
+            ProjectUser::class,
+        );
+    }
+
+    /**
+     * @return array
+     */
+    public function getGroupNames(): array
+    {
+        return array_column($this->groups->toArray(), 'name');
     }
 }
