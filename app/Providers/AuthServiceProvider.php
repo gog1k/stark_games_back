@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Project;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Passport\Passport;
 
 class AuthServiceProvider extends ServiceProvider
@@ -28,5 +31,9 @@ class AuthServiceProvider extends ServiceProvider
             'project_admin' => 'Can do all actions for project',
             'project_manager' => 'Can do same actions for project',
         ]);
+
+        Auth::viaRequest('api-key', function (Request $request) {
+            return Project::where('api_key', $request->header('authorization'))->first();
+        });
     }
 }

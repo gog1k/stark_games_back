@@ -8,7 +8,9 @@ class UserItemTemplate extends Pivot
 {
     protected $table = 'user_item_templates';
 
-    protected $casts = ['params' => 'json'];
+    protected $casts = [
+        'params' => 'json'
+    ];
 
     protected $attributes = [
         'params' => '{}',

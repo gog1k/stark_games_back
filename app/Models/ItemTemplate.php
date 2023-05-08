@@ -25,6 +25,16 @@ class ItemTemplate extends Pivot
         'template',
     ];
 
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
+
     public function items(): HasManyThrough {
         return $this->hasManyThrough(
             RoomItem::class,

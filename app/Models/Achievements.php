@@ -4,15 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
- * @property int $id
- * @property boolean $active
+ * @property bool $active
  * @property string $name
- * @property string $type
+ * @property int $project_id
+ * @property int $count
+ * @property int $item_template_id
+ * @property int $event_id
+ * @property int $event_fields
  */
-class RoomItem extends BaseModel
+class Achievements extends BaseModel
 {
     use HasFactory;
 
@@ -23,9 +25,12 @@ class RoomItem extends BaseModel
      */
     protected $fillable = [
         'active',
-        'type',
         'name',
         'project_id',
+        'count',
+        'item_template_id',
+        'event_id',
+        'event_fields',
     ];
 
     /**
@@ -36,7 +41,15 @@ class RoomItem extends BaseModel
     protected $hidden = [
         'created_at',
         'updated_at',
-        'laravel_through_key'
+    ];
+
+    protected $casts = [
+        'active' => 'bool',
+        'event_fields' => 'json'
+    ];
+
+    protected $attributes = [
+        'event_fields' => '{}',
     ];
 
     /**
@@ -50,22 +63,22 @@ class RoomItem extends BaseModel
     }
 
     /**
-     * @return HasManyThrough
+     * @return BelongsTo
      */
-    public function roomItemTemplates(): HasManyThrough
+    public function event(): BelongsTo
     {
-        return $this->hasManyThrough(
-            ItemTemplate::class,
-            RoomItemTemplate::class,
-            'room_item_id',
-            'id',
-            'id',
-            'item_template_id'
+        return $this->belongsTo(
+            Event::class,
         );
     }
 
-    public function roomItemTemplatesIds()
+    /**
+     * @return BelongsTo
+     */
+    public function itemTemplate(): BelongsTo
     {
-        return $this->roomItemTemplates->pluck('id');
+        return $this->belongsTo(
+            ItemTemplate::class,
+        );
     }
 }

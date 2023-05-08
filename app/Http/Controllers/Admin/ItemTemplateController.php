@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ItemTemplate;
+use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\Rules\File;
@@ -15,14 +16,36 @@ class ItemTemplateController extends Controller
         return response(ItemTemplate::get());
     }
 
+    public function allowListAction($id): Response
+    {
+        $response = Project::where([
+            'id' => $id
+        ])
+            ->with('roomItems')
+            ->first();
+
+        $itemTemplates = ItemTemplate
+            ::where(['active' => 1])
+            ->whereHas('items', fn($query) => $query->whereIn('room_items.id', $response->roomItems->pluck('id')))
+            ->get()->toArray();
+
+        return response($itemTemplates);
+    }
+
     public function listForTemplateAction($templateId): Response
     {
-        return response(ItemTemplate::with('items')->whereHas('items', fn($query) => $query->where(['room_items.id' => $templateId]))->get());
+        return response(
+            ItemTemplate::with('items')->whereHas('items', fn($query) => $query->where(['room_items.id' => $templateId])
+            )->get()
+        );
     }
 
     public function listForItemAction($itemId): Response
     {
-        return response(ItemTemplate::with('items')->whereHas('items', fn($query) => $query->where(['room_items.id' => $itemId]))->get());
+        return response(
+            ItemTemplate::with('items')->whereHas('items', fn($query) => $query->where(['room_items.id' => $itemId])
+            )->get()
+        );
     }
 
     public function getAction($id): Response

@@ -3,22 +3,26 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\RoomItem;
+use App\Models\Achievements;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
-class RoomItemController extends Controller
+class AchievementController extends Controller
 {
     public function getListAction(): Response
     {
         if (auth()->user()->isSuperUser()) {
-            $response = RoomItem::query();
+            $response = Achievements::query();
         } else {
-            $response = RoomItem
+            $response = Achievements
                 ::whereIn('project_id', auth()->user()->projectsAllowedForAdministrationIds());
         }
 
-        $response = $response->with('project')->paginate(10);
+        $response = $response
+            ->with('project')
+            ->with('event')
+            ->with('itemTemplate')
+            ->paginate(10);
 
         return response([
             'items' => $response->items(),
@@ -33,7 +37,7 @@ class RoomItemController extends Controller
     public function getAction(int $id): Response
     {
         return response(
-            RoomItem::where(['id' => $id])->first()
+            Achievements::where(['id' => $id])->first()
         );
     }
 
@@ -42,37 +46,41 @@ class RoomItemController extends Controller
         $request->validate([
             'active' => 'required|boolean',
             'name' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
             'project_id' => 'required|integer|exists:projects,id',
+            'count' => 'required|integer|exists:projects,id',
+            'item_template_id' => 'required|integer|exists:item_templates,id',
+            'event_id' => 'required|integer|exists:events,id',
+            'event_fields' => 'array',
         ]);
 
-        $roomItem = RoomItem::create([
+        $achievements = Achievements::create([
             'active' => $request->active,
             'name' => $request->name,
-            'type' => $request->type,
             'project_id' => $request->project_id,
+            'count' => $request->count,
+            'item_template_id' => $request->item_template_id,
+            'event_id' => $request->event_id,
+            'event_fields' => $request->event_fields,
         ]);
 
-        return response($roomItem);
+        return response($achievements);
     }
 
     public function updateAction(Request $request): Response
     {
         $request->validate([
-            'id' => 'required|integer|exists:room_items,id',
+            'id' => 'required|integer|exists:achievements,id',
             'active' => 'required|boolean',
             'name' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
         ]);
 
-        $roomItem = RoomItem::findOrFail($request->id);
+        $achievement = Achievements::findOrFail($request->id);
 
-        $roomItem->active = $request->active;
-        $roomItem->name = $request->name;
-        $roomItem->type = $request->type;
+        $achievement->active = $request->active;
+        $achievement->name = $request->name;
 
-        $roomItem->save();
+        $achievement->save();
 
-        return response($roomItem);
+        return response($achievement);
     }
 }

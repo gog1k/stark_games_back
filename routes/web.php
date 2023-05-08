@@ -13,5 +13,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('/signup', [\App\Http\Controllers\Api\AuthController::class, 'signupAction']);
-Route::post('/signin', [\App\Http\Controllers\Api\AuthController::class, 'signinAction']);
+Route::post('/signup', [\App\Http\Controllers\AuthController::class, 'signupAction']);
+Route::post('/signin', [\App\Http\Controllers\AuthController::class, 'signinAction']);

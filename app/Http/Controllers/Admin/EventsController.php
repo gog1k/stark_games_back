@@ -3,22 +3,24 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\RoomItem;
+use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
-class RoomItemController extends Controller
+class EventsController extends Controller
 {
     public function getListAction(): Response
     {
         if (auth()->user()->isSuperUser()) {
-            $response = RoomItem::query();
+            $response = Event::query();
         } else {
-            $response = RoomItem
+            $response = Event
                 ::whereIn('project_id', auth()->user()->projectsAllowedForAdministrationIds());
         }
 
-        $response = $response->with('project')->paginate(10);
+        $response = $response
+            ->with('project')
+            ->paginate(10);
 
         return response([
             'items' => $response->items(),
@@ -30,10 +32,18 @@ class RoomItemController extends Controller
         ]);
     }
 
+    public function allowListAction($id): Response
+    {
+        return response(Event
+            ::whereHas('project', fn($query) => $query->where('id', $id))
+            ->get()
+            ->toArray());
+    }
+
     public function getAction(int $id): Response
     {
         return response(
-            RoomItem::where(['id' => $id])->first()
+            Event::where(['id' => $id])->first()
         );
     }
 
@@ -42,37 +52,37 @@ class RoomItemController extends Controller
         $request->validate([
             'active' => 'required|boolean',
             'name' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
+            'code' => 'required|string|max:255',
             'project_id' => 'required|integer|exists:projects,id',
+            'fields' => 'required|string|max:255',
         ]);
 
-        $roomItem = RoomItem::create([
+        $events = Event::create([
             'active' => $request->active,
             'name' => $request->name,
-            'type' => $request->type,
+            'code' => $request->code,
             'project_id' => $request->project_id,
+            'fields' => explode(',', $request->fields),
         ]);
 
-        return response($roomItem);
+        return response($events);
     }
 
     public function updateAction(Request $request): Response
     {
         $request->validate([
-            'id' => 'required|integer|exists:room_items,id',
+            'id' => 'required|integer|exists:events,id',
             'active' => 'required|boolean',
             'name' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
         ]);
 
-        $roomItem = RoomItem::findOrFail($request->id);
+        $event = Event::findOrFail($request->id);
 
-        $roomItem->active = $request->active;
-        $roomItem->name = $request->name;
-        $roomItem->type = $request->type;
+        $event->active = $request->active;
+        $event->name = $request->name;
 
-        $roomItem->save();
+        $event->save();
 
-        return response($roomItem);
+        return response($event);
     }
 }

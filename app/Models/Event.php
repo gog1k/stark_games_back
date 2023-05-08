@@ -3,16 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
- * @property int $id
- * @property boolean $active
+ *
+ * @property bool $active
+ * @property int $project_id
  * @property string $name
- * @property string $type
+ * @property string $code
+ * @property array $fields
  */
-class RoomItem extends BaseModel
+class Event extends Model
 {
     use HasFactory;
 
@@ -23,9 +26,11 @@ class RoomItem extends BaseModel
      */
     protected $fillable = [
         'active',
-        'type',
-        'name',
         'project_id',
+        'name',
+        'code',
+        'count',
+        'fields',
     ];
 
     /**
@@ -36,7 +41,16 @@ class RoomItem extends BaseModel
     protected $hidden = [
         'created_at',
         'updated_at',
-        'laravel_through_key'
+    ];
+
+    protected $casts = [
+        'active' => 'bool',
+        'count' => 'integer',
+        'fields' => 'json'
+    ];
+
+    protected $attributes = [
+        'fields' => '{}',
     ];
 
     /**
@@ -50,22 +64,15 @@ class RoomItem extends BaseModel
     }
 
     /**
-     * @return HasManyThrough
+     * @return BelongsToMany
      */
-    public function roomItemTemplates(): HasManyThrough
+    public function stats(): BelongsToMany
     {
-        return $this->hasManyThrough(
-            ItemTemplate::class,
-            RoomItemTemplate::class,
-            'room_item_id',
-            'id',
-            'id',
-            'item_template_id'
-        );
-    }
-
-    public function roomItemTemplatesIds()
-    {
-        return $this->roomItemTemplates->pluck('id');
+        return $this->belongsToMany(
+            User::class,
+        )
+            ->withPivot('count')
+            ->withPivot('fields')
+            ->withTimestamps();
     }
 }

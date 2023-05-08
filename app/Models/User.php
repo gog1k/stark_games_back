@@ -10,6 +10,10 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 
 /**
+ * @property bool $active
+ * @property string $name
+ * @property string $email
+ * @property string $password
  * @property-read BelongsToMany groups
  * @property-read HasMany projectsUser
  */
@@ -23,6 +27,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
+        'active',
         'name',
         'email',
         'password',
@@ -47,6 +52,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'active' => 'bool',
     ];
 
     public function projectsAllowedForAdministrationIds(): array
@@ -99,6 +105,15 @@ class User extends Authenticatable
         return $this->belongsToMany(
             Group::class,
         );
+    }
+
+    public function nameGroups(): array
+    {
+        return $this->groups()->map(function ($group) {
+            return array_merge($user->toArray(), [
+                'groups' => $user->getGroupNames(),
+            ]);
+        });
     }
 
     /**
