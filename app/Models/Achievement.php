@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * @property bool $active
@@ -12,9 +13,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $count
  * @property int $item_template_id
  * @property int $event_id
- * @property int $event_fields
+ * @property array $event_fields
+ * @property string $event_fields_hash
  */
-class Achievements extends BaseModel
+class Achievement extends BaseModel
 {
     use HasFactory;
 
@@ -31,6 +33,7 @@ class Achievements extends BaseModel
         'item_template_id',
         'event_id',
         'event_fields',
+        'event_fields_hash',
     ];
 
     /**
@@ -80,5 +83,15 @@ class Achievements extends BaseModel
         return $this->belongsTo(
             ItemTemplate::class,
         );
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            User::class,
+        )->withTimestamps();
     }
 }

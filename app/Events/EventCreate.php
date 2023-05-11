@@ -2,21 +2,17 @@
 
 namespace App\Events;
 
+use App\Models\EventUser;
+
 class EventCreate
 {
-    public int $eventId;
-    public int $userId;
-    public string $fields;
+    public EventUser $eventUser;
 
     /**
-     * @param int $eventId
-     * @param int $userId
-     * @param string $fields
+     * @param EventUser $eventUser
      */
-    public function __construct(int $eventId, int $userId, string $fields)
+    public function __construct(EventUser $eventUser)
     {
-        $this->eventId = $eventId;
-        $this->userId = $userId;
-        $this->fields = $fields;
+        $this->eventUser = $eventUser;
     }
 }

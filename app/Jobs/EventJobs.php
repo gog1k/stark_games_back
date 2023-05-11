@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Jobs;
 
+use App\Models\EventUser;
 use Exception;
 
 class EventJobs extends Jobs
@@ -15,19 +16,9 @@ class EventJobs extends Jobs
     public $queue = 'events';
 
     /**
-     * @var int
+     * @var EventUser
      */
-    private int $eventId;
-
-    /**
-     * @var int
-     */
-    private int $userId;
-
-    /**
-     * @var string
-     */
-    private string $fields;
+    private EventUser $eventUser;
 
     /**
      * @var string
@@ -38,16 +29,12 @@ class EventJobs extends Jobs
      * Create a new job instance.
      *
      * @param string $eventType
-     * @param int $eventId
-     * @param int $userId
-     * @param string $fields
+     * @param EventUser $eventUser
      */
-    public function __construct(string $eventType, int $eventId, int $userId, string $fields)
+    public function __construct(string $eventType, EventUser $eventUser)
     {
         $this->eventType = $eventType;
-        $this->eventId = $eventId;
-        $this->userId = $userId;
-        $this->fields = $fields;
+        $this->eventUser = $eventUser;
     }
 
     /**
@@ -58,13 +45,18 @@ class EventJobs extends Jobs
      */
     public function handle(): bool
     {
-        switch ($this->eventType) {
-            case 'EventCreate':
-//                print_r($this->event->toArray());
-//                print_r($this->user->toArray());
-                break;
-            default:
-                return false;
+        $eventUser = $this->eventUser->refresh();
+        $achievment = $eventUser->event->achievments()->where([
+            'event_fields_hash' => $eventUser->fields_hash,
+        ])->first();
+
+        if (
+            $eventUser
+            && $achievment
+            && empty($achievment->users()->where(['user_id' => $eventUser->user_id])->first())
+            && $eventUser->count >= $achievment->count
+        ) {
+            $achievment->users()->sync($eventUser->user_id, false);
         }
 
         return true;

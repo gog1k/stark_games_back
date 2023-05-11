@@ -21,6 +21,7 @@ return new class extends Migration
             $table->integer('item_template_id')->index();
             $table->integer('event_id')->index();
             $table->string('event_fields')->index();
+            $table->string('event_fields_hash')->index();
         });
     }
 

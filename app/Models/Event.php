@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  *
@@ -64,15 +65,22 @@ class Event extends Model
     }
 
     /**
-     * @return BelongsToMany
+     * @return HasMany
      */
-    public function stats(): BelongsToMany
+    public function eventUsers(): HasMany
     {
-        return $this->belongsToMany(
-            User::class,
-        )
-            ->withPivot('count')
-            ->withPivot('fields')
-            ->withTimestamps();
+        return $this->hasMany(
+            EventUser::class,
+        );
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function achievments(): HasMany
+    {
+        return $this->hasMany(
+            Achievement::class
+        );
     }
 }

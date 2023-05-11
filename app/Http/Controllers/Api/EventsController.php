@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Events\EventCreate;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
+use App\Models\EventUser;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -46,23 +47,35 @@ class EventsController extends Controller
             }
         }
 
-        $fields = json_encode($fields);
+        $fieldsHash = hash('sha256', json_encode($fields));
 
         $user = User::where([
             'email' => $request->email,
         ])->first();
 
-        if (empty($eventUser = $event->stats()->wherePivot('fields', $fields)->first())) {
-            $event->stats()->syncWithPivotValues($user->id, ['count' => 1, 'fields' => $fields], false);
+        $eventWithUser = $event->with('eventUsers')
+            ->whereHas('eventUsers', fn($query) => $query->where([
+                'user_id' => $user->id,
+                'fields_hash' => $fieldsHash,
+            ]))
+            ->first();
+
+        if (empty($eventWithUser) ) {
+            $eventUser = EventUser::create([
+                'event_id' => $event->id,
+                'user_id' => $user->id,
+                'count' => 1,
+                'fields' => $fields,
+                'fields_hash' => $fieldsHash,
+            ]);
         } else {
-            $event->stats()->syncWithPivotValues(
-                $user->id,
-                ['count' => ++$eventUser->pivot->count, 'fields' => $fields],
-                false
-            );
+            $eventUser = $eventWithUser->eventUsers()->where(['fields_hash' => $fieldsHash,])->first();
+            $eventUser->count++;
+            $eventUser->save();
+            $eventUser->refresh();
         }
 
-        event(new EventCreate($event->id, $user->id, $fields));
+        event(new EventCreate($eventUser));
 
         return response([]);
     }

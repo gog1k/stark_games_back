@@ -11,14 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('event_user', function (Blueprint $table) {
+        Schema::create('achievement_user', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->integer('event_id')->index();
+            $table->integer('achievement_id')->index();
             $table->integer('user_id')->index();
-            $table->integer('count')->index();
-            $table->string('fields')->index();
-            $table->string('fields_hash')->index();
         });
     }
 
@@ -27,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('event_user');
+        Schema::dropIfExists('achievement_user');
     }
 };

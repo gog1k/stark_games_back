@@ -15,7 +15,7 @@ class EventListener
      */
     public function handle($event): bool
     {
-        dispatch(new EventJobs(self::getShortClassName($event), $event->eventId, $event->userId, $event->fields));
+        dispatch(new EventJobs(self::getShortClassName($event), $event->eventUser));
         return true;
     }
 
