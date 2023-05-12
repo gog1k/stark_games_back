@@ -73,12 +73,14 @@ class AchievementController extends Controller
             'id' => 'required|integer|exists:achievements,id',
             'active' => 'required|boolean',
             'name' => 'required|string|max:255',
+            'count' => 'required|integer',
         ]);
 
         $achievement = Achievement::findOrFail($request->id);
 
         $achievement->active = $request->active;
         $achievement->name = $request->name;
+        $achievement->count = $request->count;
 
         $achievement->save();
 
