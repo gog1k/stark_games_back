@@ -13,7 +13,7 @@ return new class extends Migration
     {
         if (!Schema::hasColumns('steam_games', ['is_free'])) {
             Schema::table('steam_games', function (Blueprint $table) {
-                $table->integer('is_free');
+                $table->integer('is_free')->default(0);
                 $table->text('detailed_description');
             });
         }
