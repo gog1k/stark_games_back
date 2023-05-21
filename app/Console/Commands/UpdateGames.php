@@ -42,12 +42,6 @@ class UpdateGames extends Command
     public function handle()
     {
 
-        dd(
-            json_encode(Http::get(
-                "https://api.rawg.io/api/games?key=d4496a6fcf18437dbde59fbb86c361fb&ordering=added&page_size=40&page=9517"
-            )->body())
-        );
-
         $delete = $this->confirm('Delete all?');
 
         if ($delete) {

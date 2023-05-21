@@ -54,7 +54,7 @@ class EventsController extends Controller
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:255',
             'project_id' => 'required|integer|exists:projects,id',
-            'fields' => 'required|string|max:255',
+            'fields' => 'string|max:255|nullable',
         ]);
 
         $events = Event::create([
