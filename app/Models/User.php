@@ -55,46 +55,9 @@ class User extends Authenticatable
         'active' => 'bool',
     ];
 
-    public function projectsAllowedForAdministrationIds(): array
-    {
-        $ids = [];
-        foreach ($this->projectsUser as $projectUser) {
-            if (array_filter($projectUser->groups->toArray(), fn($group) => in_array($group['name'], [
-                'ProjectAdmin',
-                'ProjectManager',
-            ]))) {
-                $ids[] = $projectUser->project_id;
-            }
-        }
-
-        return $ids;
-    }
-
     public function isSuperUser(): bool
     {
         return !!array_filter($this->groups->toArray(), fn($group) => $group['name'] === 'SuperUser');
-    }
-
-    public function isProjectAdmin(): bool
-    {
-        foreach ($this->projectsUser as $projectUser) {
-            if (array_filter($projectUser->groups->toArray(), fn($group) => $group['name'] == 'ProjectAdmin')) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public function isProjectManager(): bool
-    {
-        foreach ($this->projectsUser as $projectUser) {
-            if (array_filter($projectUser->groups->toArray(), fn($group) => $group['name'] == 'ProjectManager')) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -104,25 +67,6 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(
             Group::class,
-        );
-    }
-
-    public function nameGroups(): array
-    {
-        return $this->groups()->map(function ($group) {
-            return array_merge($user->toArray(), [
-                'groups' => $user->getGroupNames(),
-            ]);
-        });
-    }
-
-    /**
-     * @return HasMany
-     */
-    public function projectsUser(): HasMany
-    {
-        return $this->hasMany(
-            ProjectUser::class,
         );
     }
 

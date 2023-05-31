@@ -54,7 +54,6 @@ class AuthController extends Controller
         return [
             'user' => $this->getUserData($user),
             'groups' => $user->getGroupNames(),
-            'projects' => $this->getUserProjects($user),
             'access_token' => $user->createToken('authToken', $this->getScopes($user))->accessToken
         ];
     }
@@ -80,30 +79,6 @@ class AuthController extends Controller
             return ['superuser'];
         }
 
-        if ($user->isProjectAdmin()) {
-            return ['project_admin'];
-        }
-
-        if ($user->isProjectManager()) {
-            return ['project_manager'];
-        }
-
         return [];
-    }
-
-    /**
-     * @param $user
-     * @return array
-     */
-    private function getUserProjects($user)
-    {
-        $projects = [];
-        $projectsUser = $user->projectsUser;
-
-        foreach ($projectsUser as $projectUser) {
-            $projects[] = (array_merge($projectUser->project->toArray(), ['group' => array_column($projectUser->groups->toArray(), 'name')]));
-        }
-
-        return $projects;
     }
 }

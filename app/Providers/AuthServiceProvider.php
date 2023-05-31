@@ -28,12 +28,6 @@ class AuthServiceProvider extends ServiceProvider
 
         Passport::tokensCan([
             'superuser' => 'Can all actions',
-            'project_admin' => 'Can do all actions for project',
-            'project_manager' => 'Can do same actions for project',
         ]);
-
-        Auth::viaRequest('api-key', function (Request $request) {
-            return Project::where('api_key', $request->header('authorization'))->first();
-        });
     }
 }
