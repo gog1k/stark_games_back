@@ -20,7 +20,7 @@ Route::group(['prefix' => 'games'], function () {
 });
 
 
-Route::middleware(['auth:api', 'scope:superuser,project_admin,project_manager'])->group(function () {
+Route::middleware(['auth:api'])->group(function () {
     Route::get('/user-board', [\App\Http\Controllers\UserController::class, 'userBoardAction']);
 });
 
