@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Game;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Http;
 
 class GamesController extends Controller
 {
@@ -18,6 +20,7 @@ class GamesController extends Controller
 
         return response($response->toArray());
     }
+
     public function setRatingAction($id = 0, Request $request): Response
     {
         $request->validate([
@@ -26,6 +29,10 @@ class GamesController extends Controller
 
         return response([$id, $request->rate]);
     }
+
+    /**
+     * @throws Exception
+     */
     public function getAction($id = 0): Response
     {
         $response = Game
@@ -33,6 +40,19 @@ class GamesController extends Controller
                 'id' => $id,
             ])
             ->first();
+
+        if (!$response) {
+            throw new Exception('Game not found');
+        }
+
+        if (auth()->user()) {
+            Http::withHeaders([
+                'authorization' => env('ACHIEVEMENTS_KEY')
+            ])->post(env('ACHIEVEMENTS_SERVICE_URL') . '/api/event/create/', [
+                "user_id" => auth()->user()->id,
+                "code" => "view_game",
+            ]);
+        }
 
         return response($response->toArray());
     }

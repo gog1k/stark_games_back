@@ -19,8 +19,13 @@ Route::group(['prefix' => 'games'], function () {
     Route::post('/rating/{mask}', [\App\Http\Controllers\GamesController::class, 'setRatingAction'])->where('id', '[0-9]+');
 });
 
+Route::group(['prefix' => 'users'], function () {
+    Route::get('/autocomplete-list/{mask}', [\App\Http\Controllers\UserController::class, 'autocompleteListAction']);
+});
+
 
 Route::middleware(['auth:api'])->group(function () {
+    Route::get('/user-board/{userName}', [\App\Http\Controllers\UserController::class, 'userBoardAction']);
     Route::get('/user-board', [\App\Http\Controllers\UserController::class, 'userBoardAction']);
 });
 
