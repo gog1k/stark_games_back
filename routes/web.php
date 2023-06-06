@@ -12,6 +12,3 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
-Route::post('/signup', [\App\Http\Controllers\AuthController::class, 'signupAction']);
-Route::post('/signin', [\App\Http\Controllers\AuthController::class, 'signinAction']);
