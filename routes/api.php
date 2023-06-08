@@ -22,7 +22,9 @@ Route::middleware(['auth:api'])->group(function () {
     Route::group(['prefix' => 'games'], function () {
         Route::get('{id}', [\App\Http\Controllers\GamesController::class, 'getAction'])->where('id', '[0-9]+');
         Route::get('/autocomplete-list/{mask}', [\App\Http\Controllers\GamesController::class, 'autocompleteListAction']);
-        Route::post('/rating/{mask}', [\App\Http\Controllers\GamesController::class, 'setRatingAction'])->where('id', '[0-9]+');
+        Route::post('/rating/{mask}', [\App\Http\Controllers\GamesController::class, 'setRatingAction']);
+        Route::get('/comments/{id}', [\App\Http\Controllers\GamesController::class, 'commentsAction'])->where('id', '[0-9]+');
+        Route::post('/setComment/{id}', [\App\Http\Controllers\GamesController::class, 'setCommentAction'])->where('id', '[0-9]+');
     });
 
     Route::group(['prefix' => 'users'], function () {

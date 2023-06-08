@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Comment;
 use App\Models\Game;
 use Exception;
 use Illuminate\Http\Request;
@@ -55,5 +56,39 @@ class GamesController extends Controller
         }
 
         return response($response->toArray());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function commentsAction($id = 0): Response
+    {
+        $game = Game::with('comments.user')->findOrFail($id);
+        return response($game->comments);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function setCommentAction(Request $request, $id = 0): Response
+    {
+        $request->validate([
+            'comment' => 'required|string|max:255',
+        ]);
+
+        $game = Game::findOrFail($id);
+
+        Http::withHeaders([
+            'authorization' => env('ACHIEVEMENTS_KEY')
+        ])->post(env('ACHIEVEMENTS_SERVICE_URL') . '/api/event/create/', [
+            "user_id" => auth()->user()->id,
+            "code" => "add_comment",
+        ]);
+
+        return response(Comment::create([
+            'user_id' => auth()->user()->id,
+            'game_id' => $game->id,
+            'comment' => $request->comment,
+        ]));
     }
 }
