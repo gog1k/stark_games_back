@@ -34,6 +34,15 @@ class GamesController extends Controller
     /**
      * @throws Exception
      */
+    public function getMyGamesAction(): Response
+    {
+        // todo get my games
+        return response(Game::limit(10)->get());
+    }
+
+    /**
+     * @throws Exception
+     */
     public function getAction($id = 0): Response
     {
         $response = Game

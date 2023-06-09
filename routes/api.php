@@ -20,6 +20,7 @@ Route::middleware(['auth:api'])->group(function () {
     Route::get('/user-board', [\App\Http\Controllers\UserController::class, 'userBoardAction']);
 
     Route::group(['prefix' => 'games'], function () {
+        Route::get('my', [\App\Http\Controllers\GamesController::class, 'getMyGamesAction']);
         Route::get('{id}', [\App\Http\Controllers\GamesController::class, 'getAction'])->where('id', '[0-9]+');
         Route::get('/autocomplete-list/{mask}', [\App\Http\Controllers\GamesController::class, 'autocompleteListAction']);
         Route::post('/rating/{mask}', [\App\Http\Controllers\GamesController::class, 'setRatingAction']);
