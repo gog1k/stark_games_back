@@ -33,3 +33,5 @@ Route::middleware(['auth:api'])->group(function () {
     });
 });
 
+Route::post('/callbacks', [\App\Http\Controllers\CallbackController::class, 'indexAction']);
+
