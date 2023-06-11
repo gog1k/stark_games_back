@@ -55,13 +55,19 @@ class GamesController extends Controller
             throw new Exception('Game not found');
         }
 
+        $data = [
+            "project_id" => env('ACHIEVEMENTS_PROJECT_ID', false),
+            "user_id" => auth()->user()->id,
+            "code" => "view_game",
+        ];
+
+        ksort($data);
+        $sign = hash('sha256', urldecode(http_build_query($data)) . env('ACHIEVEMENTS_KEY'));
+
         if (auth()->user()) {
             Http::withHeaders([
-                'authorization' => env('ACHIEVEMENTS_KEY')
-            ])->post(env('ACHIEVEMENTS_SERVICE_URL') . '/api/event/create/', [
-                "user_id" => auth()->user()->id,
-                "code" => "view_game",
-            ]);
+                'signature' => $sign
+            ])->post(env('ACHIEVEMENTS_SERVICE_URL') . '/api/event/create/', $data);
         }
 
         return response($response->toArray());
@@ -87,12 +93,18 @@ class GamesController extends Controller
 
         $game = Game::findOrFail($id);
 
-        Http::withHeaders([
-            'authorization' => env('ACHIEVEMENTS_KEY')
-        ])->post(env('ACHIEVEMENTS_SERVICE_URL') . '/api/event/create/', [
+        $data = [
+            "project_id" => env('ACHIEVEMENTS_PROJECT_ID', false),
             "user_id" => auth()->user()->id,
             "code" => "add_comment",
-        ]);
+        ];
+
+        ksort($data);
+        $sign = hash('sha256', urldecode(http_build_query($data)) . env('ACHIEVEMENTS_KEY'));
+
+        Http::withHeaders([
+            'signature' => $sign
+        ])->post(env('ACHIEVEMENTS_SERVICE_URL') . '/api/event/create/', $data);
 
         return response(Comment::create([
             'user_id' => auth()->user()->id,

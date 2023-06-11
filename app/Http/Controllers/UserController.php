@@ -18,10 +18,17 @@ class UserController extends Controller
             $access = 'write';
         }
 
+        $data = [
+            "project_id" => env('ACHIEVEMENTS_PROJECT_ID', false),
+        ];
+
+        ksort($data);
+        $sign = hash('sha256', urldecode(http_build_query($data)) . env('ACHIEVEMENTS_KEY'));
+
         return response(
             Http::withHeaders([
-                'authorization' => env('ACHIEVEMENTS_KEY')
-            ])->get(env('ACHIEVEMENTS_SERVICE_URL') . '/api/user-room-link/' . $id . '/' . $access));
+                'signature' => $sign
+            ])->get(env('ACHIEVEMENTS_SERVICE_URL') . '/api/user-room-link/' . $id . '/' . $access . '?' . http_build_query($data)));
     }
 
     public function autocompleteListAction($mask = ''): Response
