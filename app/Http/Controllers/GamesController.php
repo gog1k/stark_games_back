@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Comment;
 use App\Models\Game;
+use App\Models\Reward;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -38,6 +39,22 @@ class GamesController extends Controller
     {
         // todo get my games
         return response(Game::limit(10)->get());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getMyAchievementsAction(): Response
+    {
+        $items = Reward::where([
+            'user_id' => auth()->user()->id,
+        ])->get()->pluck('achievement');
+
+        Reward::where([
+            'user_id' => auth()->user()->id,
+        ])->delete();
+
+        return response($items);
     }
 
     /**
@@ -106,10 +123,12 @@ class GamesController extends Controller
             'signature' => $sign
         ])->post(env('ACHIEVEMENTS_SERVICE_URL') . '/api/event/create/', $data);
 
-        return response(Comment::create([
-            'user_id' => auth()->user()->id,
-            'game_id' => $game->id,
-            'comment' => $request->comment,
-        ]));
+        return response(
+            Comment::create([
+                'user_id' => auth()->user()->id,
+                'game_id' => $game->id,
+                'comment' => $request->comment,
+            ])
+        );
     }
 }
